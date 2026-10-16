@@ -223,6 +223,15 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+## Deploying on Streamlit Community Cloud
+
+1. Confirm the GitHub repository is public and the latest commit is on `main`.
+2. In Streamlit Community Cloud, create an app for `harishthiru2807/Hack-with-Hyderabad-Harish`.
+3. Select branch `main` and main file path `app.py` (it is at the repository root).
+4. Deploy and check the app's build/runtime logs if startup fails.
+
+The dashboard loads without initializing the YOLO model. Ultralytics and its weights are loaded only when monitoring starts, which lets the page and sample-video upload render before model initialization. The first inference can take longer while model weights are fetched. The cloud host processes uploaded video; it cannot directly access a webcam attached to your personal computer. Use **Upload a video** for cloud demos. Local webcam monitoring is for running the app on the computer connected to the camera.
+
 ### 5. Use the app
 
 In the sidebar, select **Upload a video** and choose a sample clip (`.mp4`, `.avi`, `.mov`, `.mkv`, or `.webm`). Then select **Start monitoring** to process it. Uploaded files are copied into the local `uploads/` folder using a unique, sanitized filename; video files are ignored by Git.
@@ -246,6 +255,7 @@ Use **Pause**, **Resume**, **Stop**, and **Reconnect** for a live source. A loca
 The repository includes a small automated test suite to validate the core logic:
 
 ```bash
+pip install -r requirements-dev.txt
 pytest tests -q
 ```
 

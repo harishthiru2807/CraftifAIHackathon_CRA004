@@ -1,14 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List
 
 import numpy as np
-
-
-try:
-    from ultralytics import YOLO
-except Exception:  # pragma: no cover - optional dependency for tests
-    YOLO = None
+import cv2
 
 
 class Detector:
@@ -18,21 +13,24 @@ class Detector:
         self.device = device
         self.model = None
         self.error_message = ""
-        self._initialize()
+        self._initialization_attempted = False
 
     def _initialize(self) -> None:
-        if YOLO is None:
-            self.error_message = "ultralytics is not installed."
+        if self._initialization_attempted:
             return
+        self._initialization_attempted = True
         try:
+            from ultralytics import YOLO
+
             self.model = YOLO(self.model_name)
         except Exception as exc:  # pragma: no cover - environment-dependent
             self.model = None
             self.error_message = str(exc)
 
-    def detect(self, frame: Optional[np.ndarray]) -> List[dict]:
+    def detect(self, frame: np.ndarray | None) -> List[dict]:
         if frame is None:
             return []
+        self._initialize()
         if self.model is None:
             return []
 
@@ -73,7 +71,6 @@ class Detector:
             bbox = detection.get("bounding_box", {})
             x1, y1, x2, y2 = [int(float(bbox.get(key, 0))) for key in ("x1", "y1", "x2", "y2")]
             label = f"{detection.get('class_name', 'object')} {detection.get('confidence', 0.0):.2f}"
-            cv2 = __import__("cv2")
             cv2.rectangle(annotated, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.putText(annotated, label, (x1, max(0, y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         return annotated
