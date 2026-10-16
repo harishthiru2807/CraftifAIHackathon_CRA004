@@ -230,7 +230,7 @@ streamlit run app.py
 3. Select branch `main` and main file path `app.py` (it is at the repository root).
 4. Deploy and check the app's build/runtime logs if startup fails.
 
-The dashboard loads without initializing the YOLO model. Ultralytics and its weights are loaded only when monitoring starts, which lets the page and sample-video upload render before model initialization. The first inference can take longer while model weights are fetched. The cloud host processes uploaded video; it cannot directly access a webcam attached to your personal computer. Use **Upload a video** for cloud demos. Local webcam monitoring is for running the app on the computer connected to the camera.
+The root-level `packages.txt` installs Linux runtime libraries needed by OpenCV on Streamlit Community Cloud. The dashboard loads without initializing the YOLO model. Ultralytics and its weights are loaded only when monitoring starts, which lets the page and sample-video upload render before model initialization. The first inference can take longer while model weights are fetched. The cloud host processes uploaded video; it cannot directly access a webcam attached to your personal computer. Use **Upload a video** for cloud demos. Local webcam monitoring is for running the app on the computer connected to the camera.
 
 ### 5. Use the app
 
