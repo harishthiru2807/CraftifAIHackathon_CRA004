@@ -5,6 +5,12 @@ __pycache__/
 .venv/
 .env
 .DS_Store
+events.jsonl
+yolov*.pt
+uploads/*
+!uploads/.gitkeep
+exports/*
+!exports/.gitkeep
 recordings/*.mp4
 recordings/*.avi
 recordings/*.mov

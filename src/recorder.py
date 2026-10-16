@@ -21,6 +21,8 @@ class VideoRecorder:
         if self.writer is not None:
             self.stop()
         height, width = frame_shape[:2]
+        if width <= 0 or height <= 0 or fps <= 0:
+            raise ValueError("Recording dimensions and FPS must be positive.")
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
         self.output_path = self.output_dir / f"{file_prefix}_{timestamp}.mp4"
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -36,6 +38,8 @@ class VideoRecorder:
     def write(self, frame: np.ndarray) -> bool:
         if self.writer is None or not self.is_recording:
             return False
+        if frame.shape[1] <= 0 or frame.shape[0] <= 0:
+            raise ValueError("Cannot record an empty video frame.")
         self.writer.write(frame)
         return True
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -38,16 +39,33 @@ class VisionPipeline:
         self.auto_snapshot_on_event = auto_snapshot_on_event
         self.frame_count = 0
 
-    def process_frame(self, frame: np.ndarray, source_name: str | None = None) -> Tuple[np.ndarray, List[dict], List[dict]]:
+    def process_frame(
+        self,
+        frame: np.ndarray,
+        source_name: str | None = None,
+        source_type: str = "usb_camera",
+    ) -> Tuple[np.ndarray, List[dict], List[dict]]:
         if frame is None:
             return None, [], []
         source_name = source_name or self.source_name
+        self.detector.confidence_threshold = self.confidence_threshold
+        inference_started = time.perf_counter()
         detections = [
             detection
             for detection in self.detector.detect(frame)
             if float(detection.get("confidence", 0.0)) >= self.confidence_threshold
         ]
+        self.inference_ms = (time.perf_counter() - inference_started) * 1000
         annotated = self.detector.annotate_frame(frame, detections)
+        cv2.putText(
+            annotated,
+            datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S"),
+            (12, 28),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (255, 255, 255),
+            2,
+        )
         events: List[dict] = []
         alerts: List[dict] = []
 
@@ -56,21 +74,19 @@ class VisionPipeline:
             confidence = float(detection.get("confidence", 0.0))
             bbox = detection.get("bounding_box", {})
             should_trigger = self.alert_manager.should_trigger(class_name)
-            alert_record = None
-            snapshot_path = None
-            if should_trigger:
-                alert_record = self.alert_manager.add_alert(class_name, confidence, source_name)
-                alerts.append(alert_record)
-            if self.auto_snapshot_on_event and should_trigger:
-                snapshot_path = str(self.snapshot_manager.save_snapshot(annotated, label=class_name))
+            if not should_trigger:
+                continue
+            alert_record = self.alert_manager.add_alert(class_name, confidence, source_name)
+            alerts.append(alert_record)
+            snapshot = self.snapshot_manager.save_snapshot(annotated, label=class_name) if self.auto_snapshot_on_event else None
             event = self.event_manager.create_event(
-                source_type="usb_camera",
+                source_type=source_type,
                 source_name=source_name,
                 class_name=class_name,
                 confidence=confidence,
                 bounding_box=bbox,
-                snapshot_path=snapshot_path,
-                alert_triggered=bool(should_trigger),
+                snapshot_path=str(snapshot.relative_to(self.project_root)) if snapshot else "",
+                alert_triggered=True,
             )
             self.event_manager.record_event(event)
             events.append(event)
@@ -81,8 +97,8 @@ class VisionPipeline:
             self.recorder.write(annotated)
         return annotated, detections, events
 
-    def start_recording(self, fps: float = 20.0) -> str | None:
-        output = self.recorder.start((720, 1280, 3), fps=fps)
+    def start_recording(self, frame_shape: Tuple[int, ...], fps: float = 20.0) -> str | None:
+        output = self.recorder.start(frame_shape, fps=fps)
         if output is None:
             return None
         return str(output)

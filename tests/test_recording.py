@@ -14,3 +14,8 @@ def test_recording_creates_file(tmp_path):
     saved = recorder.stop()
     assert saved is not None
     assert saved.exists()
+    capture = __import__("cv2").VideoCapture(str(saved))
+    success, recorded_frame = capture.read()
+    capture.release()
+    assert success
+    assert recorded_frame.shape[:2] == frame.shape[:2]

@@ -99,7 +99,7 @@ This prevents noisy duplicate alerts while still generating useful evidence for 
 
 ## Evidence and exports
 
-Every accepted detection creates a structured event. The JSON record includes fields such as:
+Every cooldown-qualified alert creates a structured event. The JSON record includes fields such as:
 
 ```json
 {
@@ -225,15 +225,21 @@ streamlit run app.py
 
 ### 5. Use the app
 
-From the sidebar, select:
+In the sidebar, select **Upload a video** and choose a sample clip (`.mp4`, `.avi`, `.mov`, `.mkv`, or `.webm`). Then select **Start monitoring** to process it. Uploaded files are copied into the local `uploads/` folder using a unique, sanitized filename; video files are ignored by Git.
 
-- camera source type
-- camera index or RTSP URL
+You can also select:
+
+- **USB camera** and its device index, or
+- **RTSP stream** and a reachable stream URL
+
+Then configure:
+
 - confidence threshold
+- YOLO model
 - alert cooldown
 - whether to auto-save snapshots for events
 
-Then hit Start to begin monitoring. Use Stop, Pause, Resume, and Reconnect as needed.
+Use **Pause**, **Resume**, **Stop**, and **Reconnect** for a live source. A local sample video stops automatically when it reaches the end. The dashboard displays the current annotated frame, per-frame latency, processing FPS, detection counts, recent alerts, saved evidence, and event downloads.
 
 ## Testing
 
