@@ -1,0 +1,14 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+.venv/
+.env
+.DS_Store
+recordings/*.mp4
+recordings/*.avi
+recordings/*.mov
+recordings/*.mkv
+snapshots/*.jpg
+snapshots/*.jpeg
+snapshots/*.png

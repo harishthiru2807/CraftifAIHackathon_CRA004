@@ -1,0 +1,13 @@
+project_name: EnviroGuard Vision AI
+source_type: usb_camera
+camera_index: 0
+input_path: ""
+rtsp_url: ""
+confidence_threshold: 0.25
+alert_cooldown_seconds: 10.0
+model_name: yolov8n.pt
+device: cpu
+auto_snapshot_on_event: true
+recording_enabled: false
+recording_fps: 20.0
+max_alert_history: 50
